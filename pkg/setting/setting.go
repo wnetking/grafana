@@ -228,6 +228,16 @@ type Cfg struct {
 	AppSubUrl        string
 	ServeFromSubPath bool
 
+	// build
+	BuildVersion string
+	BuildCommit  string
+	BuildBranch  string
+	BuildStamp   int64
+	IsEnterprise bool
+
+	// packaging
+	Packaging string
+
 	// Paths
 	ProvisioningPath   string
 	DataPath           string
@@ -286,6 +296,8 @@ type Cfg struct {
 
 	// Use to enable new features which may still be in alpha/beta stage.
 	FeatureToggles map[string]bool
+
+	AnonymousHideVersion bool
 }
 
 // IsExpressionsEnabled returns whether the expressions feature is enabled.
@@ -607,6 +619,13 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	// Temporary keep global, to make refactor in steps
 	Raw = cfg.Raw
 
+	cfg.BuildVersion = BuildVersion
+	cfg.BuildCommit = BuildCommit
+	cfg.BuildStamp = BuildStamp
+	cfg.BuildBranch = BuildBranch
+	cfg.IsEnterprise = IsEnterprise
+	cfg.Packaging = Packaging
+
 	ApplicationName = APP_NAME
 
 	Env, err = valueAsString(iniFile.Section(""), "app_mode", "development")
@@ -856,6 +875,7 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	if err != nil {
 		return err
 	}
+	cfg.AnonymousHideVersion = iniFile.Section("auth.anonymous").Key("hide_version").MustBool(false)
 
 	// auth proxy
 	authProxy := iniFile.Section("auth.proxy")
